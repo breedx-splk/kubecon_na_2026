@@ -1,7 +1,7 @@
 ---
-theme: uncover
+# theme: uncover
 class: invert
-paginate: true
+# paginate: true
 ---
 <style>
   :root {
@@ -12,7 +12,7 @@ paginate: true
     --color-highlight: #99c;
     --color-highlight-hover: #aaf;
     --color-highlight-heading: #99c;
-    --color-header: #bbb;
+    --color-header: #7f2e2e;
     --color-header-shadow: transparent;
   }
 </style>
@@ -37,12 +37,17 @@ Jason Plumb (Splunk)
 
 ---
 
-test
+# test
+
+```java
+String foo = "love";
+doSomething(foo);
+```
 
 ```kotlin
 thing { 
     doSomething { 
-        foo: bar
+        foo: "bar"
         bar: baz
     }
 }
