@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -80,16 +81,28 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
     val settled = winners.all { it != null }
     val canSpin = catalog.isNotEmpty() && !spinning
     val resultsReady = settled && !spinning
+    val onSpinAction = {
+        if (!spinning) {
+            reelOrders = List(3) { catalog.shuffled() }
+            reelPhases = List(3) { Random.nextInt(0, catalog.size) }
+            winners.indices.forEach { winners[it] = null }
+            stopRequestedAt = null
+            spinning = true
+            spinId += 1
+        } else {
+            stopRequestedAt = SystemClock.elapsedRealtime()
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(Obsidian, NightSurface, Obsidian)))
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 20.dp, vertical = 14.dp),
+            .padding(horizontal = 20.dp, vertical = 8.dp),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(bottom = 72.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -186,40 +199,32 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
                         modifier = Modifier.height(64.dp).wrapContentHeight(Alignment.CenterVertically),
                     )
                 }
-                Button(
-                    enabled = canSpin || (spinning && stopRequestedAt == null),
-                    onClick = {
-                        if (!spinning) {
-                            reelOrders = List(3) { catalog.shuffled() }
-                            reelPhases = List(3) { Random.nextInt(0, catalog.size) }
-                            winners.indices.forEach { winners[it] = null }
-                            stopRequestedAt = null
-                            spinning = true
-                            spinId += 1
-                        } else {
-                            stopRequestedAt = SystemClock.elapsedRealtime()
-                        }
+            }
+        }
+        if (catalog.isNotEmpty()) {
+            Button(
+                enabled = canSpin || (spinning && stopRequestedAt == null),
+                onClick = onSpinAction,
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(60.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (spinning) NightSurface else BloodRed,
+                    contentColor = BoneWhite,
+                    disabledContainerColor = NightSurface.copy(alpha = 0.6f),
+                    disabledContentColor = BoneWhite.copy(alpha = 0.45f),
+                ),
+                border = if (spinning) BorderStroke(1.dp, BloodRed) else null,
+            ) {
+                Text(
+                    text = when {
+                        resultsReady -> "TAKE ANOTHER STAB AT IT"
+                        stopRequestedAt != null -> "REELS SLOWING…"
+                        spinning -> "STOP THE REELS"
+                        else -> "SPIN FOR INSPIRATION"
                     },
-                    modifier = Modifier.fillMaxWidth().height(60.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (spinning) NightSurface else BloodRed,
-                        contentColor = BoneWhite,
-                        disabledContainerColor = NightSurface.copy(alpha = 0.6f),
-                        disabledContentColor = BoneWhite.copy(alpha = 0.45f),
-                    ),
-                    border = if (spinning) BorderStroke(1.dp, BloodRed) else null,
-                ) {
-                    Text(
-                        text = when {
-                            stopRequestedAt != null -> "REELS SLOWING…"
-                            spinning -> "STOP THE REELS"
-                            else -> "SPIN FOR INSPIRATION"
-                        },
-                        letterSpacing = 1.5.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
+                    letterSpacing = 1.5.sp,
+                    fontWeight = FontWeight.Bold,
+                )
             }
         }
     }
@@ -298,6 +303,7 @@ private fun EmojiReel(
                 ) {
                     Text(
                         text = entry.symbol,
+                        modifier = Modifier.offset(y = 6.dp),
                         fontSize = 34.sp,
                         color = BoneWhite.copy(alpha = if (winner != null && !isSelected) 0.24f else 1f),
                     )

@@ -141,7 +141,7 @@ fun AboutScreen(onBack: () -> Unit) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
         ) {
-            Text(text = "THE IDEA", color = Ectoplasm, letterSpacing = 3.sp)
+            Text(text = "THE IDEA ::", color = Ectoplasm, letterSpacing = 3.sp)
             Text(text = "FROM YOUR POCKET\nTO THE BIG SCREEN", color = Ectoplasm, letterSpacing = 3.sp)
             Spacer(modifier = Modifier.height(12.dp))
             Text(
