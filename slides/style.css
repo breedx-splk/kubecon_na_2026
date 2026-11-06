@@ -6,6 +6,10 @@
   padding-left: 8rem !important;
 }
 
+.slidev-layout.generous-left-pad2 {
+  padding-left: 7rem !important;
+}
+
 .slidev-layout.generous-top-pad {
   padding-top: 4rem !important;
 }
@@ -14,9 +18,53 @@
   opacity: 1 !important;
 }
 
+.slidev-layout.double-text {
+  font-size: 2.2rem;
+}
+
+.slidev-layout.double-text p,
+.slidev-layout.double-text ul,
+.slidev-layout.double-text ol {
+  font-size: 2.0rem;
+}
+
+.slidev-layout.double-text h1 {
+  font-size: 3.7rem;
+  margin-bottom: 2.5rem;
+}
+
+.slidev-layout.double-text h2 {
+  font-size: 3.75rem;
+}
+
+.slidev-layout.double-text h3 {
+  font-size: 3rem;
+}
+
+.slidev-layout.double-text h4 {
+  font-size: 2.5rem;
+}
+
+.slidev-layout.double-text h5 {
+  font-size: 2rem;
+}
+
+.slidev-layout.double-text h6 {
+  font-size: 1.75rem;
+}
+
+.slidev-layout.double-text p {
+  line-height: 1.25;
+}
+
+.slidev-layout.double-text li {
+  line-height: 1.35em;
+}
+
 .slide-left-enter-active,
 .slide-left-leave-active,
 .slide-right-enter-active,
 .slide-right-leave-active {
   transition-duration: 200ms !important;
 }
+

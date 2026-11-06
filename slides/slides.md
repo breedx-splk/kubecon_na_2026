@@ -45,7 +45,7 @@ layout: two-cols
 
 <div class="h-10"></div>
 
-## Jason Plumb
+## Jason Plumb <span class="text-sm">(he/him)</span>
 
 ## 30 years in industry
 
@@ -67,7 +67,7 @@ ul {
 </style>
 
 ---
-class: generous-left-pad generous-top-pad bright-subtitle
+class: generous-left-pad generous-top-pad bright-subtitle double-text
 ---
 
 # About this talk
@@ -79,7 +79,26 @@ class: generous-left-pad generous-top-pad bright-subtitle
 * Features of OTel Android
 * The DSL
 * Demo
+* What lies ahead...
 * <span class="android-green">Q&A</span>
+
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+
+# Assumptions
+
+<img
+  src="./scream.png"
+  alt="The Scream by Edvard Munch"
+  class="absolute right-8 top-8 h-72 w-auto rounded shadow-lg"
+/>
+
+* Basic knowledge of o11y signals
+  * <span class="text-lg">traces, logs, events, metrics</span>
+* You have heard of OpenTelemetry
+* You might have used Android
+* <span class="android-green">xxx</span>
 
 ---
 layout: two-cols
