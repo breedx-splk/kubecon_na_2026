@@ -246,7 +246,7 @@ private fun EmojiReel(
     val currentStopTime by rememberUpdatedState(stopRequestedAt)
     val currentPreviousLocked by rememberUpdatedState(previousLocked)
     val currentOnLocked by rememberUpdatedState(onLocked)
-    val speedMs = 118 + index * 24
+    val speedMs = 42 + index * 8
 
     LaunchedEffect(spinId, entries, phase) {
         if (entries.isEmpty()) return@LaunchedEffect
@@ -269,7 +269,7 @@ private fun EmojiReel(
             listState.animateScrollBy(
                 value = -rowHeightPx,
                 animationSpec = tween(
-                    durationMillis = 130 + step * 105,
+                    durationMillis = 85 + step * 60,
                     easing = FastOutSlowInEasing,
                 ),
             )
@@ -327,5 +327,5 @@ private fun EmojiReel(
 
 private const val VISIBLE_ROWS = 5
 private const val REEL_CYCLES = 32
-private const val DECELERATION_STEPS = 6
-private const val STOP_STAGGER_MS = 1_200L
+private const val DECELERATION_STEPS = 4
+private const val STOP_STAGGER_MS = 90L
