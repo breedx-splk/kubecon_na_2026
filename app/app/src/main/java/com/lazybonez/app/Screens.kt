@@ -142,9 +142,10 @@ fun AboutScreen(onBack: () -> Unit) {
             horizontalAlignment = Alignment.Start,
         ) {
             Text(text = "THE IDEA", color = Ectoplasm, letterSpacing = 3.sp)
+            Text(text = "FROM YOUR POCKET\nTO THE BIG SCREEN", color = Ectoplasm, letterSpacing = 3.sp)
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "Make a movie\nfrom the weirdest\nthings in your pocket.",
+                text = "The stupidest,\nmost low-effort way\nto begin writing a horror film.",
                 color = BoneWhite,
                 fontSize = 34.sp,
                 lineHeight = 39.sp,
