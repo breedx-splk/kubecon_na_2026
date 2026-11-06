@@ -167,35 +167,7 @@ fun AboutScreen(onBack: () -> Unit) {
 
 @Composable
 fun PlotifyScreen(onBack: () -> Unit) {
-    HorrorBackdrop {
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(text = "🎬", fontSize = 54.sp)
-            Spacer(modifier = Modifier.height(18.dp))
-            Text(
-                text = "PLOTIFY",
-                color = BoneWhite,
-                fontSize = 38.sp,
-                fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 4.sp,
-            )
-            Spacer(modifier = Modifier.height(14.dp))
-            Text(
-                text = "The plot machine is still waking up.\nYour next nightmare is coming soon.",
-                color = BoneWhite.copy(alpha = 0.72f),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge,
-                lineHeight = 27.sp,
-            )
-            Spacer(modifier = Modifier.height(40.dp))
-            BonezButton(label = "BACK TO THE LOBBY", onClick = onBack)
-        }
-    }
+    EmojiSlotMachine(onBack = onBack)
 }
 
 @Composable

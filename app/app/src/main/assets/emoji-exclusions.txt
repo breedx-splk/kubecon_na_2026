@@ -1,0 +1,3 @@
+# Optional curation list. Add one Unicode code point sequence per line, copied from
+# the first column of emoji-test.txt (for example: 1F600 or 1F468 200D 1F9B0).
+# Matching entries are omitted from all three reels; the source catalog stays complete.
