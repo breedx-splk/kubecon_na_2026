@@ -1,5 +1,8 @@
 package com.lazybonez.app
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,11 +20,13 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -30,18 +35,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onFinished: () -> Unit) {
+    val progress = remember { Animatable(0f) }
+
     LaunchedEffect(Unit) {
-        delay(1_200)
+        progress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 5_000, easing = LinearEasing),
+        )
         onFinished()
     }
 
     HorrorBackdrop {
         Column(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = "💀", fontSize = 68.sp)
@@ -53,6 +64,30 @@ fun SplashScreen(onFinished: () -> Unit) {
                 color = Ectoplasm,
                 style = MaterialTheme.typography.labelLarge,
                 letterSpacing = 3.sp,
+            )
+            Spacer(modifier = Modifier.height(48.dp))
+            Text(
+                text = "SUMMONING INSPIRATION",
+                color = BoneWhite.copy(alpha = 0.72f),
+                style = MaterialTheme.typography.labelSmall,
+                letterSpacing = 2.sp,
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+            LinearProgressIndicator(
+                progress = { progress.value },
+                modifier = Modifier
+                    .fillMaxWidth(0.78f)
+                    .height(8.dp)
+                    .background(NightSurface, RoundedCornerShape(50)),
+                color = BloodRed,
+                trackColor = BoneWhite.copy(alpha = 0.14f),
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "${(progress.value * 100).toInt()}%",
+                color = Ectoplasm,
+                style = MaterialTheme.typography.labelSmall,
+                letterSpacing = 1.sp,
             )
         }
     }
@@ -118,7 +153,7 @@ fun AboutScreen(onBack: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Lazy Bonez turns random emojis into low-budget horror movie inspiration. Pick a few strange symbols, keep the production scrappy, and let the nightmare do the rest.",
+                text = "Lazy Bonez 💀 turns random emojis into low-budget horror movie inspiration. Pick a few strange symbols, keep the production scrappy, and let the nightmare do the rest.",
                 color = BoneWhite.copy(alpha = 0.78f),
                 style = MaterialTheme.typography.bodyLarge,
                 lineHeight = 28.sp,
