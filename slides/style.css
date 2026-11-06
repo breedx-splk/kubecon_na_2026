@@ -1,0 +1,22 @@
+.slidev-layout .android-green {
+  color: #3ddc84;
+}
+
+.slidev-layout.generous-left-pad {
+  padding-left: 8rem !important;
+}
+
+.slidev-layout.generous-top-pad {
+  padding-top: 4rem !important;
+}
+
+.slidev-layout.bright-subtitle h1 + p {
+  opacity: 1 !important;
+}
+
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition-duration: 200ms !important;
+}
