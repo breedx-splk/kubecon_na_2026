@@ -77,8 +77,8 @@ class: generous-left-pad generous-top-pad bright-subtitle double-text
 * A little background
 * How OTel facilitates RUM
 * Features of OTel Android
-* The DSL
-* Demo
+* <span class="android-green">The DSL</span>
+* Live demo!
 * What lies ahead...
 * <span class="android-green">Q&A</span>
 
@@ -93,12 +93,13 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
   alt="The Scream by Edvard Munch"
   class="absolute right-8 top-8 h-72 w-auto rounded shadow-lg"
 />
+<br/>
 
 * Basic knowledge of o11y signals
   * <span class="text-lg">traces, logs, events, metrics</span>
 * You have heard of OpenTelemetry
-* You might have used Android
-* <span class="android-green">xxx</span>
+  * <span class="text-lg">tracer, span processor, sampler, etc</span>
+* You might have used <span class="android-green">Android</span>
 
 ---
 layout: two-cols
