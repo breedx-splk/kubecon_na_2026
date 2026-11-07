@@ -101,6 +101,14 @@ internal class LocalPlotGenerator(private val modelFile: File) : Closeable {
             "(?i)\\b(?:a|an|the|and|but|or|to|of|in|on|at|for|with|from|by|as|because|that|which|who|" +
                 "is|are|was|were|be|been|being|has|have|had|into|onto|through|beneath|until|while|when|if)$",
         )
+        val SKIN_TONE_MENTION = Regex(
+            "(?i)\\b(?:skin\\s*(?:tone|color)|complexion|" +
+                "(?:dark|light|medium(?:[- ](?:light|dark))?|deep|fair|pale|brown|black|white|olive|tan)[- ](?:skinned|skin|complexion)|" +
+                "skin\\s+(?:was|is|looked|appeared|became)\\s+(?:dark|light|medium|deep|fair|pale|brown|black|white|olive|tan))\\b",
+        )
+        val SKINNED_ADJECTIVE = Regex(
+            "(?i)\\b(?:dark|light|medium(?:[- ](?:light|dark))?|deep|fair|pale|brown|black|white|olive|tan)-skinned\\b\\s*",
+        )
     }
 
     private fun cleanPlot(text: String, entries: List<EmojiEntry>): String {
@@ -124,7 +132,13 @@ internal class LocalPlotGenerator(private val modelFile: File) : Closeable {
             .replace("__", "")
             .replace(Regex("\\s+"), " ")
             .trim()
-        val completeSentences = cleaned.split(Regex("(?<=[.!?])\\s+"))
+        val skinSafe = cleaned.split(Regex("(?<=[.!?])\\s+"))
+            .filterNot(SKIN_TONE_MENTION::containsMatchIn)
+            .joinToString(" ")
+            .let { SKINNED_ADJECTIVE.replace(it, "") }
+            .replace(Regex("\\s+"), " ")
+            .trim()
+        val completeSentences = skinSafe.split(Regex("(?<=[.!?])\\s+"))
             .map(String::trim)
             .filter { sentence ->
                 sentence.lastOrNull()?.let { it in ".!?" } == true &&
@@ -143,7 +157,7 @@ internal class LocalPlotGenerator(private val modelFile: File) : Closeable {
 
         // A small local model may return an awkwardly punctuated but still useful response.
         // Never let sentence cleanup erase the entire plot.
-        val fallback = cleaned
+        val fallback = skinSafe
         return fallback.split(Regex("\\s+")).take(MAX_WORDS).joinToString(" ")
     }
 }
