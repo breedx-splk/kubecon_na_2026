@@ -27,19 +27,23 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,11 +62,18 @@ import androidx.compose.ui.zIndex
 import androidx.compose.foundation.lazy.LazyListState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlin.random.Random
+import java.io.File
 
 @Composable
 internal fun EmojiSlotMachine(onBack: () -> Unit) {
     val context = LocalContext.current
+    val modelFile = remember(context) {
+        val modelDirectory = context.getExternalFilesDir("models") ?: File(context.filesDir, "models")
+        modelDirectory.mkdirs()
+        File(modelDirectory, LOCAL_MODEL_FILE_NAME)
+    }
     var catalog by remember { mutableStateOf<List<EmojiEntry>>(emptyList()) }
     var loadFailed by remember { mutableStateOf(false) }
     var spinning by remember { mutableStateOf(false) }
@@ -70,7 +81,17 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
     var spinId by remember { mutableIntStateOf(0) }
     var reelOrders by remember { mutableStateOf(List(3) { emptyList<EmojiEntry>() }) }
     var reelPhases by remember { mutableStateOf(List(3) { 0 }) }
+    var modelPresent by remember(modelFile) { mutableStateOf(modelFile.isFile) }
+    var generatingPlot by remember { mutableStateOf(false) }
+    var generatedPlot by remember { mutableStateOf("") }
+    var generationError by remember { mutableStateOf("") }
     val winners = remember { mutableStateListOf<EmojiEntry?>(null, null, null) }
+    val generator = remember(modelFile) { LocalPlotGenerator(modelFile) }
+    val coroutineScope = rememberCoroutineScope()
+
+    DisposableEffect(generator) {
+        onDispose { generator.close() }
+    }
 
     LaunchedEffect(context) {
         runCatching { EmojiCatalog.load(context) }
@@ -86,6 +107,9 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
             reelOrders = List(3) { catalog.shuffled() }
             reelPhases = List(3) { Random.nextInt(0, catalog.size) }
             winners.indices.forEach { winners[it] = null }
+            generatingPlot = false
+            generatedPlot = ""
+            generationError = ""
             stopRequestedAt = null
             spinning = true
             spinId += 1
@@ -153,7 +177,6 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f, fill = false)
                         .clip(RoundedCornerShape(22.dp))
                         .background(Color.Black.copy(alpha = 0.38f))
                         .border(1.dp, BoneWhite.copy(alpha = 0.13f), RoundedCornerShape(22.dp))
@@ -173,24 +196,78 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
                             winner = winners[index],
                             onLocked = { result ->
                                 winners[index] = result
-                                if (winners.all { it != null }) spinning = false
+                                if (winners.all { it != null }) {
+                                    spinning = false
+                                    generatedPlot = ""
+                                    generationError = ""
+                                    modelPresent = modelFile.isFile
+                                    if (modelPresent) {
+                                        generatingPlot = true
+                                        val selectedEntries = winners.filterNotNull().toList()
+                                        coroutineScope.launch {
+                                            try {
+                                                generatedPlot = generator.generate(selectedEntries)
+                                            } catch (error: Exception) {
+                                                generationError = error.message
+                                                    ?: "The local model could not generate a plot."
+                                                modelPresent = modelFile.isFile
+                                            } finally {
+                                                generatingPlot = false
+                                            }
+                                        }
+                                    } else {
+                                        generationError = "Local model file not found. Copy it to the path below."
+                                    }
+                                }
                             },
                         )
                     }
                 }
 
-                Spacer(Modifier.height(18.dp))
                 if (resultsReady) {
-                    Text(
-                        text = "${winners.joinToString("   ") { it?.symbol.orEmpty() }}\n" +
-                            winners.joinToString("  ·  ") { it?.name.orEmpty() },
-                        color = BoneWhite,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium,
-                        lineHeight = 24.sp,
-                        modifier = Modifier.fillMaxWidth().height(64.dp),
-                    )
+                    Spacer(Modifier.height(12.dp))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        when {
+                            generatingPlot -> Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = Ectoplasm,
+                                    strokeWidth = 2.dp,
+                                )
+                                Text(
+                                    "LOADING MODEL & WRITING…",
+                                    color = BoneWhite.copy(alpha = 0.78f),
+                                    fontSize = 11.sp,
+                                )
+                            }
+                            generatedPlot.isNotBlank() -> Text(
+                                text = generatedPlot,
+                                color = BoneWhite,
+                                style = MaterialTheme.typography.bodyLarge,
+                                lineHeight = 25.sp,
+                                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                            )
+                            generationError.isNotBlank() -> Text(
+                                text = "$generationError\n${modelFile.absolutePath}",
+                                color = if (modelPresent) BloodRed else BoneWhite.copy(alpha = 0.7f),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodySmall,
+                                lineHeight = 18.sp,
+                                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                            )
+                        }
+                    }
                 } else {
+                    Spacer(Modifier.height(18.dp))
                     Text(
                         text = if (spinning) "LET THE REELS ROLL…" else "THREE EMOJIS. ONE BAD IDEA.",
                         color = BoneWhite.copy(alpha = 0.62f),
@@ -203,7 +280,7 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
         }
         if (catalog.isNotEmpty()) {
             Button(
-                enabled = canSpin || (spinning && stopRequestedAt == null),
+                enabled = !generatingPlot && (canSpin || (spinning && stopRequestedAt == null)),
                 onClick = onSpinAction,
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(60.dp),
                 shape = RoundedCornerShape(14.dp),
@@ -218,8 +295,8 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
                 Text(
                     text = when {
                         resultsReady -> "TAKE ANOTHER STAB AT IT"
-                        stopRequestedAt != null -> "REELS SLOWING…"
-                        spinning -> "STOP THE REELS"
+                        stopRequestedAt != null -> "FATE AWAITS..."
+                        spinning -> "GIVE ME SOME SUGAR, BABY"
                         else -> "SPIN FOR INSPIRATION"
                     },
                     letterSpacing = 1.5.sp,
