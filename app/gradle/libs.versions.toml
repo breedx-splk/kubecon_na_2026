@@ -5,7 +5,7 @@ composeBom = "2026.09.00"
 activityCompose = "1.13.0"
 litertLm = "0.19.0"
 okhttp = "5.5.1"
-otelAndroid = "1.8.1"
+otelAndroid = "1.7.0-alpha"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -16,6 +16,7 @@ androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 litertlm-android = { module = "com.google.ai.edge.litertlm:litertlm-android", version.ref = "litertLm" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 otel-android-bom = { module = "io.opentelemetry.android:opentelemetry-android-bom", version.ref = "otelAndroid" }
+otel-android-agent = { module = "io.opentelemetry.android:android-agent" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
