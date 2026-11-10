@@ -16,8 +16,20 @@ internal object MiniBackendClient {
         .build()
 
     fun fetchEmojiCatalog(): List<EmojiEntry> {
+        var lastFailure: IOException? = null
+        for (path in EMOJI_PATHS) {
+            try {
+                return fetchEmojiCatalog(path)
+            } catch (failure: IOException) {
+                lastFailure = failure
+            }
+        }
+        throw lastFailure ?: IOException("Emoji request failed")
+    }
+
+    private fun fetchEmojiCatalog(path: String): List<EmojiEntry> {
         val request = Request.Builder()
-            .url("$BASE_URL/emoji.json")
+            .url("$BASE_URL$path")
             .get()
             .build()
 
@@ -41,4 +53,5 @@ internal object MiniBackendClient {
 
     private const val BASE_URL = "http://10.0.2.2:8080"
     private const val REQUEST_TIMEOUT_SECONDS = 3L
+    private val EMOJI_PATHS = listOf("/data/oops/emoji.json", "/emoji.json")
 }
