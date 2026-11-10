@@ -1,17 +1,15 @@
 <template>
   <footer
-    class="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex items-end justify-between px-5 pb-4 text-xs text-gray-400"
+    style="position: absolute; inset-inline: 1.25rem; bottom: 1rem; z-index: 999; display: flex; align-items: flex-end; justify-content: space-between; pointer-events: none;"
   >
-    <div class="flex items-center gap-2">
-      <img
-        src="./opentelemetry_logo.png"
-        width="42"
-        height="42"
-        alt="OpenTelemetry logo"
-      />
-    </div>
+    <img
+      src="./opentelemetry_logo.png"
+      width="42"
+      height="42"
+      alt="OpenTelemetry logo"
+    />
     <svg
-      class="h-11 w-11"
+      style="width: 2.75rem; height: 2.75rem;"
       viewBox="0 0 48 48"
       role="img"
       aria-label="Android mascot"

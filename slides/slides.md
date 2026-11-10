@@ -102,6 +102,153 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 * You might have used <span class="android-green">Android</span>
 
 ---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+
+# Background
+
+<!-- Image credit: My Reading Vintage, https://myreadingvintage.com/cdn/shop/articles/books_with_history.png -->
+<img
+  src="./books_with_history.png"
+  alt="Books with history"
+  class="absolute right-8 top-8 rounded shadow-lg"
+  style="height: 10.40625rem; width: auto"
+/>
+<br/>
+
+* originally [splunk-otel-android](https://github.com/signalfx/splunk-otel-android)
+* offered to OTel in [March 2023](https://github.com/open-telemetry/community/issues/1400)
+  * accepted in July 2023
+* supported by Elastic and Embrace
+  * (and many others!)
+
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+
+# Even Moar Background
+<br/>
+
+* primarily java at the time
+* limited instrumentation
+* only emitted Spans
+  * predates <span class="android-green">OTel</span> events
+* very limited demo app
+* bespoke, wild semconv
+
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+
+# <span class="android-green leading-normal">How does OTel Android facilitate RUM?</span>
+
+* RUM -> "real user monitoring"
+* nomenclature: RUM vs. DEM
+* UX enhancements
+* Deeper understanding of user interactions.
+
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+
+# <span class="android-green leading-normal">How does OTel Android facilitate RUM?</span>
+
+* troubleshooting in production (lol)
+* correlate user actions to backend 
+* spans for network, activity, fragment
+* events for most things (click, crash, etc)
+
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+# <span class="android-green leading-normal">Features of OTel Android</span>
+
+<!-- Image credit: Kotlin logo by JetBrains, via Wikimedia Commons (public domain): https://commons.wikimedia.org/wiki/File:Kotlin_Icon.png -->
+<img
+  src="./kotlin_icon.png"
+  alt="Kotlin logo"
+  class="absolute right-8 top-8 h-36 w-auto rounded shadow-lg"
+/>
+
+* Kotlin
+  * JVM language
+  * standard for Android development
+  * some use of [`otel-kotlin`](https://github.com/open-telemetry/opentelemetry-kotlin)
+
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+
+# <span class="android-green leading-normal">Features of OTel Android</span>
+
+* Lots of instrumentation
+  * clicks, crashes, screens, network, ...
+* Some build-time instrumentation
+  * http clients
+
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+
+# <span class="android-green leading-normal">Features of OTel Android</span>
+
+* Session management
+* Simplified event api
+* Semantic conventions
+
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+# <span class="android-green leading-normal">Features of OTel Android</span>
+
+* Creating an OTel SDK instance
+  * autoconfigure 🤔
+  * super configurable and complex!
+* (currently the otel-java SDK)
+
+---
+class: text-center centered-hero
+---
+
+# 1.0.0<br/><span class="android-green">Jan 2026</span>
+
+---
+class: text-center centered-hero
+---
+
+# ((stable))<br/><span class="android-green">android-agent</span>
+
+---
+class: android-modules-slide
+---
+<img class="android-modules-image" src="./android_modules.png" alt="Android modules"/>
+
+---
+class: text-center centered-hero
+---
+
+# <span class="android-green">((also stable))</span><br/><span class="text-lg">agent-api, instrumentation-api, session-api, </span>
+
+---
+class: android-modules-slide
+---
+<img class="android-modules-image" src="./instrumentation_list.png" alt="Android modules"/>
+
+
+---
+class: text-center centered-hero
+---
+
+# <span class="android-green">((development))</span><br/><span class="text-lg">instrumentation, semconv, sessions, etc</span>
+
+---
+class: text-center centered-hero
+---
+
+# THE DSL<br/><span class="android-green">(android-agent)</span>
+
+
+---
 layout: two-cols
 ---
 
