@@ -280,26 +280,27 @@ rum = OpenTelemetryRumInitializer.initialize(
 ---
 class: larger-code
 ---
+# Adding to your Application
 
-# Configuring <span class="android-green">instrumentation</span>
+&nbsp;
+
+In your `build.gradle.kts`:
 
 ```kotlin
-instrumentations {
-  suppressing (
-      "unwanted.instrumentation.name",
-      "something.unwanted"
-  )
-  crashReporter {
-      enabled(true)
-  }
-  slowRenderingReporter {
-      detectionPollInterval(300.milliseconds)
-      enableVerboseDebugLogging()
-  }
-  screenOrientation {
-      enabled(false)
-  }
-}
+implementation(
+  platform("io.opentelemetry.android:opentelemetry-android-bom:1.8.1-alpha")
+)
+implementation("io.opentelemetry.android:android-agent")
+```
+
+In your `Application.onCreate()`:
+
+```kotlin
+OpenTelemetryRumInitializer.initialize(
+    context = this@YourAppClass,
+    configuration = {
+    ... // all DSL config here
+    })
 ```
 
 ---
@@ -327,25 +328,37 @@ class: larger-code
 # Configuring <span class="android-green">disk buffering</span>
 
 ```kotlin
-
+diskBuffering {
+    maxCacheSize = 5 * 1024*1024
+    exportPeriod = 5.minutes
+    telemetryStorageDir = File("/data/user/0/com.lazybonez/cache/otlp")
+}
 ```
-
-
 ---
 class: larger-code
 ---
-# Adding to your Application
 
-&nbsp;
-
-In your `Application.onCreate()`:
+# Configuring <span class="android-green">instrumentation</span>
 
 ```kotlin
-implementation(
-  platform("io.opentelemetry.android:opentelemetry-android-bom:1.8.1-alpha")
-)
-runtimeOnly("io.opentelemetry.android:android-agent")
+instrumentations {
+  suppressing (
+      "unwanted.instrumentation.name",
+      "something.unwanted"
+  )
+  crashReporter {
+      enabled(true)
+  }
+  slowRenderingReporter {
+      detectionPollInterval(300.milliseconds)
+      enableVerboseDebugLogging()
+  }
+  screenOrientation {
+      enabled(false)
+  }
+}
 ```
+
 ---
 class: text-center centered-hero
 ---
