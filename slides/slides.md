@@ -195,6 +195,8 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 * Session management
 * Simplified event api
 * Semantic conventions
+* OTel Demo app
+* Telemetry disk buffering
 
 ---
 class: generous-left-pad2 generous-top-pad bright-subtitle double-text
@@ -247,10 +249,144 @@ class: text-center centered-hero
 
 # THE DSL<br/><span class="android-green">(android-agent)</span>
 
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+# What's this <span class="android-green">DSL</span>?
+
+* a Kotlin (D)omain (S)pecific (L)anguage
+* Type-safe configuration
+* A set of reasonable defaults
+
+---
+class: larger-code
+---
+# Android Agent <span class="android-green">DSL</span> Example
+
+```kotlin
+rum = OpenTelemetryRumInitializer.initialize(
+        context = this@OtelDemoApplication,
+        configuration = {
+          httpExport {
+            baseUrl = "http://10.0.2.2:4318"
+          }
+          globalAttributes {
+            Attributes.of(stringKey("toolkit"), "jetpack compose")
+          }
+          ...
+        })
+```
+
+---
+class: larger-code
+---
+
+# Configuring <span class="android-green">instrumentation</span>
+
+```kotlin
+instrumentations {
+  suppressing (
+      "unwanted.instrumentation.name",
+      "something.unwanted"
+  )
+  crashReporter {
+      enabled(true)
+  }
+  slowRenderingReporter {
+      detectionPollInterval(300.milliseconds)
+      enableVerboseDebugLogging()
+  }
+  screenOrientation {
+      enabled(false)
+  }
+}
+```
+
+---
+class: larger-code
+---
+
+# Configuring <span class="android-green">exporters</span>
+
+```kotlin
+httpExport {
+    baseUrl = "http://10.0.2.2:4318"
+    headerSupplier { mapOf("user.id" to getUserId()) }
+    compression = Compression.GZIP
+    clientTls = ClientTlsConnectivity(pk, cert)
+    spans {
+        compression = Compression.NONE
+        fullUrl = "https://example.com:8067/spans"
+    }
+}
+```
+---
+class: larger-code
+---
+
+# Configuring <span class="android-green">disk buffering</span>
+
+```kotlin
+
+```
+
+
+---
+class: larger-code
+---
+# Adding to your Application
+
+&nbsp;
+
+In your `Application.onCreate()`:
+
+```kotlin
+implementation(
+  platform("io.opentelemetry.android:opentelemetry-android-bom:1.8.1-alpha")
+)
+runtimeOnly("io.opentelemetry.android:android-agent")
+```
+---
+class: text-center centered-hero
+---
+# Why not DECLARATIVE CONFIG???
+
+reasons
+
+---
+class: text-center centered-hero
+---
+# "It's so limiting"
+
+* intentionally started small
+* open to extension
+  * PRs welcome!
+
+---
+class: qna-qr-slide
+---
+# THANK YOU / Q&A
+
+<div class="qna-qr-grid">
+  <div class="qna-qr-column">
+    <h2>Slides + App</h2>
+    <img src="./repo_qr.svg" alt="QR code linking to the kubecon_na_2026 GitHub repository" />
+  </div>
+  <div class="qna-qr-column">
+    <h2>Session feedback</h2>
+    <img src="./kubecon_feedback_code.png" alt="KubeCon session feedback QR code for OpenTelemetry in Your Pocket" />
+  </div>
+</div>
 
 ---
 layout: two-cols
 ---
+
+---
+---
+# What's ahead
+
+* more DSL features being added
 
 # Left
 
