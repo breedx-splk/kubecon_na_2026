@@ -1,6 +1,7 @@
 package com.lazybonez.app
 
 import android.content.Context
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,7 +18,28 @@ internal data class EmojiEntry(
  * line. The source catalog remains unmodified and names stay attached to their sequences.
  */
 internal object EmojiCatalog {
-    suspend fun load(context: Context): List<EmojiEntry> = withContext(Dispatchers.IO) {
+    @Volatile
+    private var cachedEntries: List<EmojiEntry>? = null
+
+    suspend fun load(context: Context): List<EmojiEntry> {
+        cachedEntries?.let { return it }
+        return loadLocal(context).also { cachedEntries = it }
+    }
+
+    suspend fun loadDuringStartup(context: Context): List<EmojiEntry> = withContext(Dispatchers.IO) {
+        cachedEntries?.let { return@withContext it }
+        val entries = try {
+            MiniBackendClient.fetchEmojiCatalog()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            loadLocal(context)
+        }
+        cachedEntries = entries
+        entries
+    }
+
+    private suspend fun loadLocal(context: Context): List<EmojiEntry> = withContext(Dispatchers.IO) {
         val exclusions = context.applicationContext.assets.open(EXCLUSIONS_FILE)
             .bufferedReader()
             .useLines { lines ->

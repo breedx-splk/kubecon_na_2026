@@ -35,16 +35,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 @Composable
-fun SplashScreen(onFinished: () -> Unit) {
+fun SplashScreen(onFinished: () -> Unit, loadEmojiCatalog: suspend () -> Unit) {
     val progress = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
-        progress.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 5_000, easing = LinearEasing),
-        )
+        coroutineScope {
+            val catalogLoad = async { loadEmojiCatalog() }
+            progress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 5_000, easing = LinearEasing),
+            )
+            catalogLoad.await()
+        }
         onFinished()
     }
 
