@@ -40,6 +40,10 @@ internal class ReelStopTrace {
             .startSpan()
     }
 
+    fun recordWheelEmoji(index: Int, emoji: String) {
+        wheels[index]?.setAttribute("lazybonez.emoji", emoji)
+    }
+
     fun finishWheel(index: Int) {
         val span = wheels.remove(index) ?: return
         span.end()

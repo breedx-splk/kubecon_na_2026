@@ -17,6 +17,7 @@ litertlm-android = { module = "com.google.ai.edge.litertlm:litertlm-android", ve
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 otel-android-bom = { module = "io.opentelemetry.android:opentelemetry-android-bom", version.ref = "otelAndroid" }
 otel-android-agent = { module = "io.opentelemetry.android:android-agent" }
+otel-instrumentation-common-api = { module = "io.opentelemetry.android.instrumentation:common-api" }
 otel-compose-click-instrumentation = { module = "io.opentelemetry.android.instrumentation:compose-click" }
 otel-okhttp-instrumentation = { module = "io.opentelemetry.instrumentation:opentelemetry-okhttp-3.0" }
 

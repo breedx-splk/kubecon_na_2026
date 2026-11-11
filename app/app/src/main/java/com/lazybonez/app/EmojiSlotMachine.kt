@@ -111,6 +111,7 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
     val resultsReady = settled && !spinning
     val onSpinAction = {
         if (!spinning && !generatingPlot && !submittingResults) {
+            LazyBonezApplication.nextRound()
             stopTrace.startSpin()
             reelOrders = List(3) { catalog.shuffled() }
             reelPhases = List(3) { Random.nextInt(0, catalog.size) }
@@ -381,7 +382,7 @@ private fun EmojiReel(
 
         if (!currentSpinning) return@LaunchedEffect
         stopTrace.startWheel(index)
-        try {
+        val selectedEntry = try {
             repeat(DECELERATION_STEPS) { step ->
                 listState.animateScrollBy(
                     value = -rowHeightPx,
@@ -391,6 +392,8 @@ private fun EmojiReel(
                     ),
                 )
             }
+            val selectedIndex = (listState.firstVisibleItemIndex + 2) % entries.size
+            entries[selectedIndex].also { stopTrace.recordWheelEmoji(index, it.symbol) }
         } catch (cancelled: CancellationException) {
             stopTrace.cancel()
             throw cancelled
@@ -400,8 +403,7 @@ private fun EmojiReel(
         } finally {
             stopTrace.finishWheel(index)
         }
-        val selectedIndex = (listState.firstVisibleItemIndex + 2) % entries.size
-        currentOnLocked(entries[selectedIndex])
+        currentOnLocked(selectedEntry)
     }
 
     Box(
