@@ -17,6 +17,7 @@ class LazyBonezApplication : Application() {
                 diskBuffering {
                     exportPeriod = 3.seconds
                 }
+                disableMetrics()
             },
         )
     }

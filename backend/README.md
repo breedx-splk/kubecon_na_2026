@@ -53,7 +53,8 @@ the catalog or exclusions. All wheels share this pool and can shuffle it separat
 `POST /movie-script` reads and discards the body and returns **200** with an empty
 response. It accepts any content type and does not parse or store the submitted
 script. Send a `Content-Length` (normal for a string/JSON POST); chunked transfer
-encoding is not supported. Unknown paths return 404. Access logs go to the terminal.
+encoding is not supported. Unknown paths return 404. Every request logs its timestamp,
+client IP, method, URL, and response status to stdout immediately, including errors.
 
 ```sh
 curl http://localhost:8080/emoji.json
