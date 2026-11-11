@@ -281,7 +281,8 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 
 * a Kotlin (D)omain (S)pecific (L)anguage
 * Type-safe configuration
-* A set of reasonable defaults
+* A set of reasonable defaults<br/><br/>
+* makes it easy to init OpenTelemetryRum and the underlying OTel Java SDK
 
 ---
 class: larger-code
@@ -367,7 +368,7 @@ diskBuffering {
 }
 ```
 ---
-class: larger-code
+class: larger-code !pl-20
 ---
 
 # Configuring <span class="android-green">instrumentation</span>
@@ -392,12 +393,37 @@ instrumentations {
 ```
 
 ---
+class: larger-code !pl-20
+---
+
+# Misc other <span class="android-green">config</span>
+
+```kotlin
+sampler {
+    trace { SessionIdRatioBasedSampler(0.5, it) }
+}
+semanticConventions {
+    useLatestExperimental = false
+}
+resource {
+    put("service.name", "lazy-bonez")
+    put("service.version", BuildConfig.VERSION_NAME)
+    put("deployment.environment.name", "demo")
+}
+session {
+    backgroundInactivityTimeout = 30.seconds
+    maxLifetime = 2.hours
+}
+
+```
+
+---
 layout: two-cols
 title: demo
 class: flex items-center justify-center
 ---
 
-<h1 class="!text-7xl !m-0 font-bold">demo</h1>
+<h1 class="!text-7xl !m-0">demo</h1>
 
 ::right::
 
@@ -434,9 +460,22 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
 # "<span class="android-green">It's so limiting</span>"
 
+<!-- Photo credit: "Denver Boot, Close-up" by artistmac, via Flickr.
+Source: https://www.flickr.com/photos/26329029@N06/5461328339/
+License: CC BY-SA 2.0, https://creativecommons.org/licenses/by-sa/2.0/
+Image used unchanged. -->
+<img
+  src="./wheel_boot.jpg"
+  alt="A yellow parking boot clamped onto a car wheel"
+  class="absolute right-8 top-8 h-48 w-auto rounded shadow-lg"
+/>
+
 * intentionally started small
 * open to extension
-  * PRs welcome!
+  * PRs welcome!<br/><br/>
+* you can always still create your own 
+  instance of the otel sdk if you _really_
+  need to... 😜
 
 ---
 class: generous-left-pad2 generous-top-pad bright-subtitle double-text
@@ -444,11 +483,13 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 # What's ahead
 
 * more DSL features being added
+* see our [ROADMAP.md](https://github.com/open-telemetry/opentelemetry-android/blob/main/docs/ROADMAP.md)
+* 
 
 ---
 class: qna-qr-slide
 ---
-# 🤘🏻 THANK YOU / Q&A 🤘🏻
+# 🤘🏻 <span class="android-green">THANK YOU</span> / Q&A 🤘🏻
 
 <div class="qna-qr-grid">
   <div class="qna-qr-column">
