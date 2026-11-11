@@ -127,6 +127,13 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 * You might have used <span class="android-green">Android</span>
 
 ---
+layout: image
+title: agent
+image: ./agent_v2.gif
+backgroundSize: 92% auto
+---
+
+---
 class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
 
@@ -169,6 +176,7 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 
 * RUM -> "real user monitoring"
 * nomenclature: RUM vs. DEM
+  * "digital experience monitoring"
 * UX enhancements
 * Deeper understanding of user interactions.
 
@@ -186,7 +194,8 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
 class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
-# <span class="android-green leading-normal">Features of OTel Android</span>
+
+# <span class="android-green leading-normal">Features of OTel Android</span><br/><span class="text-lg">((1 of 4))</span>
 
 <!-- Image credit: Kotlin logo by JetBrains, via Wikimedia Commons (public domain): https://commons.wikimedia.org/wiki/File:Kotlin_Icon.png -->
 <img
@@ -204,10 +213,11 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
 
-# <span class="android-green leading-normal">Features of OTel Android</span>
+# <span class="android-green leading-normal">Features of OTel Android</span><br/><span class="text-lg">((2 of 4))</span>
+
 
 * Lots of instrumentation
-  * clicks, crashes, screens, network, ...
+  * clicks, crashes, screens, orientation, network, ...
 * Some build-time instrumentation
   * http clients
 
@@ -215,7 +225,8 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
 
-# <span class="android-green leading-normal">Features of OTel Android</span>
+# <span class="android-green leading-normal">Features of OTel Android</span><br/><span class="text-lg">((3 of 4))</span>
+
 
 * Session management
 * Simplified event api
@@ -226,7 +237,9 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
 class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
-# <span class="android-green leading-normal">Features of OTel Android</span>
+
+# <span class="android-green leading-normal">Features of OTel Android</span><br/><span class="text-lg">((4 of 4))</span>
+
 
 * Creating an OTel SDK instance
   * autoconfigure 🤔
@@ -510,4 +523,3 @@ class: qna-qr-slide
     <img src="./kubecon_feedback_code.png" alt="KubeCon session feedback QR code for OpenTelemetry in Your Pocket" />
   </div>
 </div>
-
