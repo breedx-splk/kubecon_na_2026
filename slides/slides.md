@@ -392,6 +392,23 @@ instrumentations {
 ```
 
 ---
+layout: two-cols
+title: demo
+class: flex items-center justify-center
+---
+
+<h1 class="!text-7xl !m-0 font-bold">demo</h1>
+
+::right::
+
+<img src="./demo_app.png" alt="Lazy Bonez Android demo app" class="h-104 max-w-full object-contain" />
+
+---
+class: text-center centered-hero bright-subtitle
+---
+# ...
+
+---
 class: text-center centered-hero bright-subtitle
 ---
 # wHy nOt dECLaRaTiVe coNfIG???
