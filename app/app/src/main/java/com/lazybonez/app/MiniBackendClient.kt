@@ -2,18 +2,24 @@ package com.lazybonez.app
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import io.opentelemetry.instrumentation.okhttp.v3_0.OkHttpTelemetry
 import org.json.JSONArray
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 /** HTTP access to the local demo backend. */
 internal object MiniBackendClient {
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .readTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .writeTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .callTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .build()
+    private val client by lazy {
+        val baseClient = OkHttpClient.Builder()
+            .connectTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .readTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .writeTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .callTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .build()
+        OkHttpTelemetry.builder(LazyBonezApplication.rum.openTelemetry)
+            .build()
+            .createCallFactory(baseClient)
+    }
 
     fun fetchEmojiCatalog(): List<EmojiEntry> {
         var lastFailure: IOException? = null
