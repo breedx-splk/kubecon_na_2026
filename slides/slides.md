@@ -279,6 +279,15 @@ class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
 # What's this <span class="android-green">DSL</span>?
 
+<!-- Image credit: Anup Debnath / Vecteezy, "3D Fire Emoji Burning Brightly with
+Glowing Orange and Red Tones Isolated on Transparent Background".
+Source: https://www.vecteezy.com/png/60120000-3d-fire-emoji-burning-brightly-with-glowing-orange-and-red-tones-isolated-on-transparent-background -->
+<img
+  src="./fire_emoji.png"
+  alt="A bright orange and red fire emoji"
+  class="absolute right-8 top-8 h-48 w-auto"
+/>
+
 * a Kotlin (D)omain (S)pecific (L)anguage
 * Type-safe configuration
 * A set of reasonable defaults<br/><br/>
