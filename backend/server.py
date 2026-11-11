@@ -43,6 +43,13 @@ def load_emoji_json():
 class Handler(BaseHTTPRequestHandler):
     emoji_json = b""
 
+    def log_message(self, format, *args):
+        message = format % args
+        print(
+            f"[{self.log_date_time_string()}] {self.address_string()} {message}",
+            flush=True,
+        )
+
     def do_GET(self):
         if urlsplit(self.path).path != "/emoji.json":
             self.send_error(404)
