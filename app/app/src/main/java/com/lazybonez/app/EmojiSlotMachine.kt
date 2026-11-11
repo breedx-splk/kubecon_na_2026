@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.lazy.LazyListState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -87,10 +88,14 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
     var generationError by remember { mutableStateOf("") }
     val winners = remember { mutableStateListOf<EmojiEntry?>(null, null, null) }
     val generator = remember(modelFile) { LocalPlotGenerator(modelFile) }
+    val stopTrace = remember { ReelStopTrace() }
     val coroutineScope = rememberCoroutineScope()
 
-    DisposableEffect(generator) {
-        onDispose { generator.close() }
+    DisposableEffect(generator, stopTrace) {
+        onDispose {
+            stopTrace.cancel()
+            generator.close()
+        }
     }
 
     LaunchedEffect(context) {
@@ -104,6 +109,7 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
     val resultsReady = settled && !spinning
     val onSpinAction = {
         if (!spinning) {
+            stopTrace.startSpin()
             reelOrders = List(3) { catalog.shuffled() }
             reelPhases = List(3) { Random.nextInt(0, catalog.size) }
             winners.indices.forEach { winners[it] = null }
@@ -113,7 +119,8 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
             stopRequestedAt = null
             spinning = true
             spinId += 1
-        } else {
+        } else if (stopRequestedAt == null) {
+            stopTrace.startStop()
             stopRequestedAt = SystemClock.elapsedRealtime()
         }
     }
@@ -192,6 +199,7 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
                             spinId = spinId,
                             spinning = spinning,
                             stopRequestedAt = stopRequestedAt,
+                            stopTrace = stopTrace,
                             previousLocked = index == 0 || winners[index - 1] != null,
                             winner = winners[index],
                             onLocked = { result ->
@@ -200,6 +208,7 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
                                     spinning = false
                                     generatedPlot = ""
                                     generationError = ""
+                                    stopTrace.startPlotGeneration()
                                     modelPresent = modelFile.isFile
                                     if (modelPresent) {
                                         generatingPlot = true
@@ -207,16 +216,22 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
                                         coroutineScope.launch {
                                             try {
                                                 generatedPlot = generator.generate(selectedEntries)
+                                            } catch (cancelled: CancellationException) {
+                                                stopTrace.cancel()
+                                                throw cancelled
                                             } catch (error: Exception) {
+                                                stopTrace.fail(error)
                                                 generationError = error.message
                                                     ?: "The local model could not generate a plot."
                                                 modelPresent = modelFile.isFile
                                             } finally {
+                                                stopTrace.finishPlotGeneration()
                                                 generatingPlot = false
                                             }
                                         }
                                     } else {
                                         generationError = "Local model file not found. Copy it to the path below."
+                                        stopTrace.fail(IllegalStateException(generationError))
                                     }
                                 }
                             },
@@ -316,6 +331,7 @@ private fun EmojiReel(
     spinId: Int,
     spinning: Boolean,
     stopRequestedAt: Long?,
+    stopTrace: ReelStopTrace,
     previousLocked: Boolean,
     winner: EmojiEntry?,
     onLocked: (EmojiEntry) -> Unit,
@@ -347,14 +363,25 @@ private fun EmojiReel(
         }
 
         if (!currentSpinning) return@LaunchedEffect
-        repeat(DECELERATION_STEPS) { step ->
-            listState.animateScrollBy(
-                value = -rowHeightPx,
-                animationSpec = tween(
-                    durationMillis = 85 + step * 60,
-                    easing = FastOutSlowInEasing,
-                ),
-            )
+        stopTrace.startWheel(index)
+        try {
+            repeat(DECELERATION_STEPS) { step ->
+                listState.animateScrollBy(
+                    value = -rowHeightPx,
+                    animationSpec = tween(
+                        durationMillis = 85 + step * 60,
+                        easing = FastOutSlowInEasing,
+                    ),
+                )
+            }
+        } catch (cancelled: CancellationException) {
+            stopTrace.cancel()
+            throw cancelled
+        } catch (failure: Exception) {
+            stopTrace.fail(failure)
+            throw failure
+        } finally {
+            stopTrace.finishWheel(index)
         }
         val selectedIndex = (listState.firstVisibleItemIndex + 2) % entries.size
         currentOnLocked(entries[selectedIndex])

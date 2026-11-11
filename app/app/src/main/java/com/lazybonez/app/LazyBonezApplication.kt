@@ -3,7 +3,8 @@ package com.lazybonez.app
 import android.app.Application
 import io.opentelemetry.android.OpenTelemetryRum
 import io.opentelemetry.android.agent.OpenTelemetryRumInitializer
-import kotlin.time.Duration.Companion.seconds
+import io.opentelemetry.api.common.AttributeKey.stringKey
+import io.opentelemetry.api.common.Attributes
 
 class LazyBonezApplication : Application() {
     override fun onCreate() {
@@ -18,6 +19,9 @@ class LazyBonezApplication : Application() {
                     enabled(false) // For demo purposes, not recommended for production.
                 }
                 disableMetrics()
+                globalAttributes {
+                    Attributes.of(stringKey("otel.demo"), "don't be lazy")
+                }
             },
         )
     }
