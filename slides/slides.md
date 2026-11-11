@@ -14,7 +14,9 @@ info: |
 
   https://github.com/breedx-splk/kubecon_na_2026
 # apply UnoCSS classes to the current slide
-class: text-center
+class: cncf-title bright-subtitle
+layout: default
+hideFooter: true
 # https://sli.dev/features/drawing
 drawings:
   persist: false
@@ -27,11 +29,34 @@ duration: 30min
 
 ---
 
+<!-- Original intro slide, kept for reference:
+---
+layout: cover
+class: text-center
+---
+
 # OpenTelemetry<br/>In Your Pocket
 
-### <span class="android-green">A guide to the OpenTelemetry<br/>Android Agent DSL</span> 
+### <span class="android-green">A guide to the OpenTelemetry<br/>Android Agent DSL</span>
 
 Jason Plumb (Splunk)
+-->
+
+<!-- Branding: CNCF / The Linux Foundation. Background rendered from the official
+KubeCon_CloudNativeCon_North_America_2026_-_Branded_PowerPoint.pptx title slide,
+attached to the speaker email dated November 3, 2026.
+Event: https://events.linuxfoundation.org/kubecon-cloudnativecon-north-america/ -->
+<img
+  class="cncf-title-background"
+  src="./kubecon_na_2026_title_background.png"
+  alt="KubeCon + CloudNativeCon North America 2026 branding with mountain artwork"
+/>
+
+<div class="cncf-title-content">
+  <h1>OpenTelemetry<br/>In Your Pocket</h1>
+  <p class="cncf-title-subtitle">A guide to the OpenTelemetry Android Agent DSL</p>
+  <p class="cncf-title-speaker">Jason Plumb (Splunk)</p>
+</div>
 
 ---
 layout: two-cols
@@ -278,9 +303,16 @@ rum = OpenTelemetryRumInitializer.initialize(
 ```
 
 ---
-class: larger-code
+class: larger-code bright-subtitle
 ---
 # Adding to your Application
+
+<!-- Image credit: Market Prospects, https://www.market-prospects.com/storage/images/301-1200x675.jpg -->
+<img
+  src="./market_prospects_application.jpg"
+  alt="Metal gears inside industrial machinery"
+  class="absolute right-8 top-8 h-32 w-auto rounded shadow-lg"
+/>
 
 &nbsp;
 
@@ -360,25 +392,46 @@ instrumentations {
 ```
 
 ---
-class: text-center centered-hero
+class: text-center centered-hero bright-subtitle
 ---
-# Why not DECLARATIVE CONFIG???
+# wHy nOt dECLaRaTiVe coNfIG???
 
-reasons
+<!-- Image source: ImageResizer, https://imageresizer.com/meme-generator/edit/Y-U-no-guy -->
+<img
+  src="./y_u_no_guy.jpg"
+  alt="Y U NO guy meme"
+  class="absolute right-8 top-8 h-36 w-auto rounded shadow-lg"
+/>
 
 ---
-class: text-center centered-hero
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
 ---
-# "It's so limiting"
+# (Y U NO <span class="android-green">declarative config</span>)
+
+* startup time on mobile
+* loading files is mostly verboten
+* isn't this DSL kinda declarative?
+
+---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+# "<span class="android-green">It's so limiting</span>"
 
 * intentionally started small
 * open to extension
   * PRs welcome!
 
 ---
+class: generous-left-pad2 generous-top-pad bright-subtitle double-text
+---
+# What's ahead
+
+* more DSL features being added
+
+---
 class: qna-qr-slide
 ---
-# THANK YOU / Q&A
+# 🤘🏻 THANK YOU / Q&A 🤘🏻
 
 <div class="qna-qr-grid">
   <div class="qna-qr-column">
@@ -391,59 +444,3 @@ class: qna-qr-slide
   </div>
 </div>
 
----
-layout: two-cols
----
-
----
----
-# What's ahead
-
-* more DSL features being added
-
-# Left
-
-chud
-
-::right::
-
-# Right
-
-pud
-
----
-class: generous-left-pad
----
-# test
-
-some java for you
-
-why is this not bold
-
-```java
-String foo = "love";
-doSomething(foo);
-```
-
-and this is apparently kotlin
-
-but what about this
-
-```kotlin
-thing { 
-    doSomething { 
-        foo: "bar"
-        bar: baz
-        beep: execute("it")
-    }
-}
-```
-
----
----
-
-# test
-
-flim
-
-flam

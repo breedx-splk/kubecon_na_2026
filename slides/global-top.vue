@@ -1,5 +1,6 @@
 <template>
   <footer
+    v-if="!$nav.currentFrontmatter.hideFooter"
     style="position: absolute; inset-inline: 1.25rem; bottom: 1rem; z-index: 999; display: flex; align-items: flex-end; justify-content: space-between; pointer-events: none;"
   >
     <img
