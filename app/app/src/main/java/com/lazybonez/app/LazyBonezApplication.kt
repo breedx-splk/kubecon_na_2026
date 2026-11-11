@@ -15,7 +15,7 @@ class LazyBonezApplication : Application() {
                     baseUrl = "http://10.0.2.2:4318"
                 }
                 diskBuffering {
-                    exportPeriod = 3.seconds
+                    enabled(false) // For demo purposes, not recommended for production.
                 }
                 disableMetrics()
             },
