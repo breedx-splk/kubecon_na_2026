@@ -1,6 +1,7 @@
 package com.lazybonez.app
 
 import android.os.SystemClock
+import android.util.Log
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -84,6 +85,7 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
     var reelPhases by remember { mutableStateOf(List(3) { 0 }) }
     var modelPresent by remember(modelFile) { mutableStateOf(modelFile.isFile) }
     var generatingPlot by remember { mutableStateOf(false) }
+    var submittingResults by remember { mutableStateOf(false) }
     var generatedPlot by remember { mutableStateOf("") }
     var generationError by remember { mutableStateOf("") }
     val winners = remember { mutableStateListOf<EmojiEntry?>(null, null, null) }
@@ -108,7 +110,7 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
     val canSpin = catalog.isNotEmpty() && !spinning
     val resultsReady = settled && !spinning
     val onSpinAction = {
-        if (!spinning) {
+        if (!spinning && !generatingPlot && !submittingResults) {
             stopTrace.startSpin()
             reelOrders = List(3) { catalog.shuffled() }
             reelPhases = List(3) { Random.nextInt(0, catalog.size) }
@@ -119,7 +121,7 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
             stopRequestedAt = null
             spinning = true
             spinId += 1
-        } else if (stopRequestedAt == null) {
+        } else if (spinning && stopRequestedAt == null) {
             stopTrace.startStop()
             stopRequestedAt = SystemClock.elapsedRealtime()
         }
@@ -214,8 +216,8 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
                                         generatingPlot = true
                                         val selectedEntries = winners.filterNotNull().toList()
                                         coroutineScope.launch {
-                                            try {
-                                                generatedPlot = generator.generate(selectedEntries)
+                                            val plot = try {
+                                                generator.generate(selectedEntries)
                                             } catch (cancelled: CancellationException) {
                                                 stopTrace.cancel()
                                                 throw cancelled
@@ -224,9 +226,24 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
                                                 generationError = error.message
                                                     ?: "The local model could not generate a plot."
                                                 modelPresent = modelFile.isFile
+                                                return@launch
                                             } finally {
-                                                stopTrace.finishPlotGeneration()
                                                 generatingPlot = false
+                                            }
+                                            generatedPlot = plot
+                                            val submissionContext = stopTrace.finishPlotGeneration()
+                                            submittingResults = true
+                                            try {
+                                                MiniBackendClient.submitResults(selectedEntries, plot, submissionContext)
+                                            } catch (cancelled: CancellationException) {
+                                                stopTrace.cancel()
+                                                throw cancelled
+                                            } catch (error: Exception) {
+                                                stopTrace.fail(error)
+                                                Log.w("MiniBackendClient", "Could not submit generated results", error)
+                                            } finally {
+                                                stopTrace.finishSpin()
+                                                submittingResults = false
                                             }
                                         }
                                     } else {
@@ -295,7 +312,7 @@ internal fun EmojiSlotMachine(onBack: () -> Unit) {
         }
         if (catalog.isNotEmpty()) {
             Button(
-                enabled = !generatingPlot && (canSpin || (spinning && stopRequestedAt == null)),
+                enabled = !generatingPlot && !submittingResults && (canSpin || (spinning && stopRequestedAt == null)),
                 onClick = onSpinAction,
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(60.dp),
                 shape = RoundedCornerShape(14.dp),

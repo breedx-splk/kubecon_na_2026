@@ -5,7 +5,7 @@ import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.context.Context
 
-/** Tracks a spin, its stop request, wheel deceleration, and plot generation. Used on the UI thread. */
+/** Tracks a spin through stopping, plot generation, and result submission. Used on the UI thread. */
 internal class ReelStopTrace {
     private var spin: Span? = null
     private var spinContext: Context? = null
@@ -54,7 +54,16 @@ internal class ReelStopTrace {
             .startSpan()
     }
 
-    fun finishPlotGeneration() = finish()
+    fun finishPlotGeneration(): Context {
+        plot?.end()
+        stop?.end()
+        plot = null
+        stop = null
+        stopContext = null
+        return spinContext ?: Context.current()
+    }
+
+    fun finishSpin() = finish()
 
     fun cancel() = finish(cancelled = true)
 

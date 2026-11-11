@@ -1,9 +1,17 @@
 package com.lazybonez.app
 
+import io.opentelemetry.context.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import io.opentelemetry.instrumentation.okhttp.v3_0.OkHttpTelemetry
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -33,6 +41,46 @@ internal object MiniBackendClient {
         throw lastFailure ?: IOException("Emoji request failed")
     }
 
+    suspend fun submitResults(entries: List<EmojiEntry>, plot: String, parentContext: Context) =
+        withContext(Dispatchers.IO) {
+            val emojis = JSONArray().apply {
+                entries.forEach { entry ->
+                    put(JSONObject().apply {
+                        put("symbol", entry.symbol)
+                        put("codePoints", entry.codePoints)
+                        put("name", entry.name)
+                    })
+                }
+            }
+            val submissions = listOf(
+                "/results/emoji" to JSONObject().put("emojis", emojis),
+                "/results/plot" to JSONObject().put("plot", plot),
+            )
+            var failure: IOException? = null
+            for ((path, payload) in submissions) {
+                currentCoroutineContext().ensureActive()
+                try {
+                    // Keep the scope on this thread, without suspending, so both HTTP spans
+                    // inherit the spin context rather than the completed stop span.
+                    parentContext.makeCurrent().use {
+                        val request = Request.Builder()
+                            .url("$BASE_URL$path")
+                            .post(payload.toString().toRequestBody(JSON_MEDIA_TYPE))
+                            .build()
+                        client.newCall(request).execute().use { response ->
+                            if (!response.isSuccessful) {
+                                throw IOException("Result POST to $path failed: HTTP ${response.code}")
+                            }
+                        }
+                    }
+                } catch (error: IOException) {
+                    val previous = failure
+                    if (previous == null) failure = error else previous.addSuppressed(error)
+                }
+            }
+            if (failure != null) throw failure
+        }
+
     private fun fetchEmojiCatalog(path: String): List<EmojiEntry> {
         val request = Request.Builder()
             .url("$BASE_URL$path")
@@ -59,5 +107,6 @@ internal object MiniBackendClient {
 
     private const val BASE_URL = "http://10.0.2.2:8080"
     private const val REQUEST_TIMEOUT_SECONDS = 3L
+    private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
     private val EMOJI_PATHS = listOf("/data/oops/emoji.json", "/emoji.json")
 }

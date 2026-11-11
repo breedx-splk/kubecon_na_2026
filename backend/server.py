@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Small local demo backend; Python standard library only."""
+"""Small local demo backend with OpenTelemetry request tracing."""
 
 import argparse
 import json
 import re
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
+
+from telemetry import TracedHTTPRequestHandler, configure_tracing
 
 
 ASSETS = Path(__file__).resolve().parents[1] / "app/app/src/main/assets"
@@ -40,8 +42,10 @@ def load_emoji_json():
     return json.dumps(list(entries.values()), ensure_ascii=False).encode("utf-8")
 
 
-class Handler(BaseHTTPRequestHandler):
+class Handler(TracedHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
     emoji_json = b""
+    routes = frozenset({"/emoji.json", "/movie-script", "/results/emoji", "/results/plot"})
 
     def log_message(self, format, *args):
         message = format % args
@@ -64,7 +68,7 @@ class Handler(BaseHTTPRequestHandler):
     do_HEAD = do_GET
 
     def do_POST(self):
-        if urlsplit(self.path).path != "/movie-script":
+        if urlsplit(self.path).path not in ("/movie-script", "/results/emoji", "/results/plot"):
             self.send_error(404)
             return
         if self.headers.get("Transfer-Encoding"):
@@ -77,7 +81,7 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError:
             self.send_error(400, "Invalid Content-Length")
             return
-        # Consume without parsing, logging, or retaining the submitted script.
+        # Consume without parsing, logging, or retaining the submitted results.
         while remaining:
             chunk = self.rfile.read(min(remaining, 65536))
             if not chunk:
@@ -94,13 +98,17 @@ def main():
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=8080)
     args = parser.parse_args()
-    Handler.emoji_json = load_emoji_json()
-    with ThreadingHTTPServer((args.host, args.port), Handler) as server:
-        print(f"Backend listening on http://{args.host}:{server.server_port}", flush=True)
-        try:
-            server.serve_forever()
-        except KeyboardInterrupt:
-            pass
+    provider, Handler.tracer = configure_tracing()
+    try:
+        Handler.emoji_json = load_emoji_json()
+        with ThreadingHTTPServer((args.host, args.port), Handler) as server:
+            print(f"Backend listening on http://{args.host}:{server.server_port}", flush=True)
+            try:
+                server.serve_forever()
+            except KeyboardInterrupt:
+                pass
+    finally:
+        provider.shutdown()
 
 
 if __name__ == "__main__":

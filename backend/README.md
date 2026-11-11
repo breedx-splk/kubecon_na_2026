@@ -1,6 +1,11 @@
 # Demo backend
 
-Run directly on the host with Python 3.7+ and bash. No Python packages are required.
+Run directly on the host with Python 3.10+ and bash. Install the backend's
+OpenTelemetry dependencies once in a local virtual environment:
+
+```sh
+./backend/setup-backend.sh
+```
 
 Install the pinned [otel-tui](https://github.com/ymtdzzz/otel-tui) release once:
 
@@ -35,6 +40,36 @@ working directory when invoked by their full path.
 Override ports with `BACKEND_PORT`, `OTLP_GRPC_PORT`, and `OTLP_HTTP_PORT`.
 Extra command-line arguments are passed through to Python or otel-tui.
 
+## Tracing
+
+The backend exports HTTP server spans as OTLP/HTTP protobuf to
+`http://localhost:4318/v1/traces`, under service name `lazy-bonez-backend`.
+Start otel-tui before sending requests and restart the backend after code changes.
+Spans export in the background about once a second; Ctrl-C flushes pending spans.
+
+Incoming W3C `traceparent`/`tracestate` headers are extracted so backend requests
+join the Android app's traces. Spans cover request handling through response
+writing, include method, matched route and response status, and mark 5xx responses
+and unhandled exceptions as errors. Unknown URLs use the method alone as the span
+name. Request bodies are not added to spans. Terminal request logging stays enabled.
+
+Standard OTel environment variables override the defaults (also listed in
+`.env.example`; the backend does not automatically load `.env` files):
+
+| Variable | Default |
+| --- | --- |
+| `OTEL_SERVICE_NAME` | `lazy-bonez-backend` |
+| `OTEL_RESOURCE_ATTRIBUTES` | `deployment.environment.name=development` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4318` |
+| `OTEL_BSP_SCHEDULE_DELAY` | `1000` milliseconds |
+
+`OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` can override the full traces URL, including
+`/v1/traces`. Export uses HTTP/protobuf. For example:
+
+```sh
+OTEL_SERVICE_NAME=demo-backend ./backend/run-backend.sh
+```
+
 ## HTTP endpoints
 
 `GET /emoji.json` returns a UTF-8 JSON array for use by each of the three wheels:
@@ -50,11 +85,22 @@ The complete response uses the app's existing `emoji-test.txt` and
 filter and deduplication as `EmojiCatalog.kt`. Restart the backend after editing
 the catalog or exclusions. All wheels share this pool and can shuffle it separately.
 
-`POST /movie-script` reads and discards the body and returns **200** with an empty
-response. It accepts any content type and does not parse or store the submitted
-script. Send a `Content-Length` (normal for a string/JSON POST); chunked transfer
+`POST /movie-script`, `POST /results/emoji`, and `POST /results/plot` read and discard
+the body and return **200** with an empty
+response. These endpoints accept any content type and do not parse or store the submitted
+results. Send a `Content-Length` (normal for a string/JSON POST); chunked transfer
 encoding is not supported. Unknown paths return 404. Every request logs its timestamp,
 client IP, method, URL, and response status to stdout immediately, including errors.
+
+After successful plot generation, the app submits JSON to both result endpoints:
+
+- `/results/emoji`: `{"emojis": [{"symbol": "😀", "codePoints": "1F600", "name": "grinning face"}, ...]}` with all three selected entries in wheel order.
+- `/results/plot`: `{"plot": "The generated movie synopsis."}`.
+
+Both calls use the app's instrumented OkHttp client. Their HTTP spans are children
+of `slot_machine.spin`, which remains open until both POST attempts finish.
+`slot_machine.stop` ends after plot generation, before result submission.
+Restart the backend after updating its routes.
 
 ```sh
 curl http://localhost:8080/emoji.json
